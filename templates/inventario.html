@@ -1,0 +1,167 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>📦 INVENTARIO</h1>
+        <br>
+        <h3>🔍Buscar elemento </h3>
+        <input type="number" id="buscar_codigo" placeholder="Ingrese código">
+        <button onclick="buscarElemento()">Buscar</button>
+
+        <table>
+            <thead>
+                <th>CODIGO</th>
+                <th>NOMBRE ELEMENTO</th>
+                <th>PRECIO UNITARIO</th>
+                <th>CANTIDAD EXISTENTE</th>
+                <th>PRECIO DE VENTA</th>
+            </thead>
+            
+            <tbody id = "base_datos_inventario">
+            </tbody>
+
+        </table>
+        <br>
+        <form id="FormularioElemento">
+            <label>Codigo: </label>
+            <input type = "number" id ="codigo" required>
+            <label>Nombre: </label>
+            <input type = "text" id ="Nombre_elemento" required>
+            <label>Precio unitario: </label>
+            <input type = "number" id ="precio_unitario" required>
+            <label>Cantidad: </label>
+            <input type = "number" id ="cantidad_exis" required>           
+            
+            <button type = "submit">Agregar</button>
+            <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
+        </form>
+        
+        <script>
+            async function cargarDatosInventario() {
+                try {
+                    const respuesta = await fetch('http://127.0.0.1:5000/datosInventario');
+                    const datos = await respuesta.json();
+                    const cuerpoTabla = document.getElementById("base_datos_inventario");
+                    cuerpoTabla.innerHTML = "";
+
+                    datos.forEach((item) => {
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
+                            <td>${item.codigo}</td>
+                            <td>${item.Nombre_elemento}</td>
+                            <td>${item.precio_unitario}</td>
+                            <td>${item.cantidad_exis}</td>
+                            <td>${(item.precio_unitario * 1.2).toFixed(2)}</td>
+                            <td>
+                                <button type="button" onclick="actualizar(${item.codigo})">Actualizar</button>
+                                <button type="button" onclick="eliminar(${item.codigo})">Eliminar</button>
+                            </td>
+                        `;
+                        cuerpoTabla.appendChild(fila);
+                    });
+                } catch (error) {
+                    console.log("Error cargando inventario:", error);
+                }
+            }
+
+            // Agregar elemento
+            document.getElementById('FormularioElemento').addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const elemento = {
+                    elemento: {
+                        codigo: parseInt(document.getElementById('codigo').value),
+                        Nombre_elemento: document.getElementById('Nombre_elemento').value,
+                        precio_unitario: parseFloat(document.getElementById('precio_unitario').value),
+                        cantidad_exis: parseInt(document.getElementById('cantidad_exis').value)
+                    }
+                };
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/añadirElemento', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(elemento)
+                    });
+                    if (response.ok) {
+                        console.log("Agregado correctamente.");
+                        cargarDatosInventario();
+                        document.getElementById('FormularioElemento').reset();
+                    }
+                } catch (error) {
+                    console.error('Error al agregar:', error);
+                }
+            });
+
+            // Eliminar elemento
+            async function eliminar(codigo) {
+                if (!confirm("¿Eliminar este elemento?")) return;
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/eliminarElemento/' + codigo, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        console.log("Eliminado correctamente.");
+                        cargarDatosInventario();
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar:', error);
+                }
+            }
+
+            // Cargar datos para actualizar
+            async function actualizar(codigo) {
+                try {
+                    const respuesta = await fetch('http://127.0.0.1:5000/buscarElemento/'+codigo);
+                    const datos = await respuesta.json();
+                    document.getElementById("codigo").value = datos[0].codigo;
+                    document.getElementById("Nombre_elemento").value = datos[0].Nombre_elemento;
+                    document.getElementById("precio_unitario").value = datos[0].precio_unitario;
+                    document.getElementById("cantidad_exis").value = datos[0].cantidad_exis;
+                    
+                } catch (error) {
+                    console.log("Error cargando para actualizar:", error);
+                }
+            }
+
+            // Guardar cambios
+            async function guardarCambios() {
+                const id = document.getElementById('codigo').value;
+                
+                const material = {
+                    Nombre_elemento: document.getElementById('Nombre_elemento').value,
+                    precio_unitario: document.getElementById('precio_unitario').value,
+                    cantidad_exis: document.getElementById('cantidad_exis').value
+                };
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/actualizarElemento/'+id, {
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(material)
+                    });
+                    if (response.ok) {
+                        console.log("Actualizado correctamente.");
+                        cargarDatosInventario();
+                       document.getElementById('FormularioElemento').reset();
+                    }
+                } catch (error) {
+                    console.error('Error al actualizar:', error);
+                }
+            }
+
+
+
+            document.addEventListener('DOMContentLoaded', cargarDatosInventario);
+
+        </script>
+
+        <a href="/inicio">
+             <button>🏠 PAGINA DE INICIO</button>
+        </a>
+        <a href="/Ventas">
+            <button>💰 VENTAS</button>
+        </a>
+        <a href="/facturacion">
+            <button>📑 FACTURACION</button>
+        </a>
+    </body>
+</html>
