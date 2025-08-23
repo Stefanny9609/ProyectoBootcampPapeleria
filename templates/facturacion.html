@@ -1,0 +1,49 @@
+<html>
+    <head></head>
+    <body>
+        <h1>📐📎 PAPELERIA S&J 📒📏</h1>
+        <a href="inicio.html"><button>🏠 INICIO</button></a>
+        <a href="ventas.html"><button>💰 VENTAS</button></a>
+        <a href="inventario.html"><button>📦 INVENTARIO</button></a>
+        
+        <h1>📑 FACTURACIÓN</h1>
+        <br>
+        
+        <h3>🔍 Buscar producto por nombre</h3>
+        <input type="text" id="buscar_nombre" placeholder="Ingrese nombre">
+        <button onclick="buscarPorNombre()">Buscar</button>
+        
+        <h2>📋 Productos encontrados</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Precio Unitario</th>
+                    <th>Stock</th>
+                    <th>Precio de Venta</th>
+                    <th>Cantidad a Facturar</th>
+                </tr>
+            </thead>
+            <tbody id="base_datos_inventario"></tbody>
+        </table>
+
+        <h2>📋 Facturas Registradas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody id="tablaFacturas"></tbody>
+        </table>
+        <button onclick="generarFacturaMultiple()">🧾 Generar Factura</button>
+        <script src="funciones.js"></script>
+    </body>
+</html>

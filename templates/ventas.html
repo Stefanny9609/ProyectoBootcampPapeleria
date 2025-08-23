@@ -1,0 +1,43 @@
+<html>
+<head></head>
+<body>
+    <h1>💰 VENTAS</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID Venta</th>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="tablaVentas"></tbody>
+    </table>
+    <a href="inicio.html"><button>🏠 INICIO</button></a>
+    <a href="inventario.html"><button>📦 INVENTARIO</button></a>
+    <a href="facturacion.html"><button>📑 FACTURACIÓN</button></a>
+
+    <script>
+        async function cargarVentas(){
+            const res = await fetch('http://127.0.0.1:5000/datosVentas');
+            const datos = await res.json();
+            const tbody = document.getElementById("tablaVentas");
+            tbody.innerHTML = "";
+            datos.forEach(v => {
+                const fila = `<tr>
+                    <td>${v.id}</td>
+                    <td>${v.codigo}</td>
+                    <td>${v.Nombre_elemento}</td>
+                    <td>${v.cantidad_vendida}</td>
+                    <td>${v.total}</td>
+                    <td>${v.fecha}</td>
+                </tr>`;
+                tbody.innerHTML += fila;
+            });
+        }
+        document.addEventListener("DOMContentLoaded", cargarVentas);
+    </script>
+</body>
+</html>
