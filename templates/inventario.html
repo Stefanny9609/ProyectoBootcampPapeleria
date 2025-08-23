@@ -3,25 +3,16 @@
 
     </head>
     <body>
+        <a href="inicio.html">
+             <button>🏠 PAGINA DE INICIO</button>
+        </a>
+        <a href="ventas.html">
+            <button>💰 VENTAS</button>
+        </a>
+        <a href="facturacion.html">
+            <button>📑 FACTURACION</button>
+        </a>
         <h1>📦 INVENTARIO</h1>
-        <br>
-        <h3>🔍Buscar elemento </h3>
-        <input type="number" id="buscar_codigo" placeholder="Ingrese código">
-        <button onclick="buscarElemento()">Buscar</button>
-
-        <table>
-            <thead>
-                <th>CODIGO</th>
-                <th>NOMBRE ELEMENTO</th>
-                <th>PRECIO UNITARIO</th>
-                <th>CANTIDAD EXISTENTE</th>
-                <th>PRECIO DE VENTA</th>
-            </thead>
-            
-            <tbody id = "base_datos_inventario">
-            </tbody>
-
-        </table>
         <br>
         <form id="FormularioElemento">
             <label>Codigo: </label>
@@ -35,17 +26,28 @@
             
             <button type = "submit">Agregar</button>
             <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
-        </form>        
+        </form>     
+        <h3>🔍 Buscar elemento por nombre</h3>
+        <input type="text" id="buscar_nombre" placeholder="Ingrese nombre">
+        <button onclick="buscarElementoNombre()">Buscar</button>
+        <button onclick="cargarDatosInventario()">🔄 Ver todos</button>
+
         
-        <a href="inicio.html">
-             <button>🏠 PAGINA DE INICIO</button>
-        </a>
-        <a href="ventas.html">
-            <button>💰 VENTAS</button>
-        </a>
-        <a href="facturacion.html">
-            <button>📑 FACTURACION</button>
-        </a>
+        <table>
+            <thead>
+                <th>CODIGO</th>
+                <th>NOMBRE ELEMENTO</th>
+                <th>PRECIO UNITARIO</th>
+                <th>CANTIDAD EXISTENTE</th>
+                <th>PRECIO DE VENTA</th>
+            </thead>
+            
+            <tbody id = "base_datos_inventario">
+            </tbody>
+
+        </table>
+        <br>    
+        
         <script src="funcionesInventario.js"></script>
     </body>
 </html>
