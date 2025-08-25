@@ -27,6 +27,8 @@
             </thead>
             <tbody id="base_datos_inventario"></tbody>
         </table>
+        <button onclick="generarFacturaMultiple()">🧾 Generar Factura</button>
+        <div id="recibo"></div>
 
         <h2>📋 Facturas Registradas</h2>
         <table>
@@ -36,14 +38,14 @@
                     <th>Código</th>
                     <th>Nombre</th>
                     <th>Cantidad</th>
-                    <th>Precio Unitario</th>
+                    <th>Precio Venta</th>
                     <th>Total</th>
                     <th>Fecha</th>
                 </tr>
             </thead>
             <tbody id="tablaFacturas"></tbody>
         </table>
-        <button onclick="generarFacturaMultiple()">🧾 Generar Factura</button>
+        
         <script src="funciones.js"></script>
     </body>
 </html>

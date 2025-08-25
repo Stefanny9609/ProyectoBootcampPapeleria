@@ -1,3 +1,5 @@
+let carrito = [];
+
 async function cargarDatosInventario() {
     try {
         const respuesta = await fetch('http://127.0.0.1:5000/datosInventario');
@@ -166,7 +168,7 @@ async function buscarPorNombre() {
             const cuerpoTabla = document.getElementById("base_datos_inventario");
             cuerpoTabla.innerHTML = "";
 
-            if (datos.length === 0) {
+            if (datos.length == 0) {
                 alert("No se encontró ningún elemento con el nombre: " +nombre);
                 return;
             }
@@ -181,7 +183,8 @@ async function buscarPorNombre() {
                     <td>${(f.precio_unitario * 1.2)}</td>
                     <td>
                         <input type="number" id="cantidad_sol${f.codigo}" min="1" max="${f.cantidad_exis}" style="width:70px;">
-                        <button onclick="generarFactura(${f.codigo})">🧾 Facturar</button>
+                        <button onclick="agregarAlCarrito(${f.codigo}, '${f.Nombre_elemento}', ${f.precio_unitario*1.2}, ${f.cantidad_exis})">➕</button>
+
                     </td>
                 `;
                 cuerpoTabla.appendChild(fila);
@@ -193,11 +196,27 @@ async function buscarPorNombre() {
         console.error("Error buscando elemento:", error);
     }
 }
-// Generar factura
-async function generarFactura(codigo) {
-    const cantidad = parseInt(document.getElementById("cantidad_sol" + codigo).value);
+
+/*// Agregar al carrito
+function agregarAlCarrito(codigo, nombre, precio, stock) {
+    const cantidad = parseInt(document.getElementById("cantidad_sol" +codigo).value);
     if (!cantidad || cantidad <= 0) {
-        alert("Ingrese una cantidad válida");
+        alert("Cantidad inválida");
+        return;
+    }
+    if (cantidad > stock) {
+        alert("No hay suficiente stock");
+        return;
+    }
+    
+    carrito.push({codigo, nombre, precio_unitario: precio, cantidad});
+    alert("Producto agregado a la factura");
+}
+
+// Generar factura con todo el carrito
+async function generarFacturaMultiple() {
+    if (carrito.length == 0) {
+        alert("No hay productos en la factura");
         return;
     }
 
@@ -205,15 +224,17 @@ async function generarFactura(codigo) {
         const respuesta = await fetch('http://127.0.0.1:5000/crearFactura', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({codigo: codigo, cantidad: cantidad})
+            body: JSON.stringify({productos: carrito})
         });
 
         const data = await respuesta.json();
 
         if (respuesta.ok) {
-            alert(data.mensaje);
+            alert("Factura generada con éxito. Total: " + data.total_factura);
+            carrito = []; // limpiar carrito
             cargarFacturas();
-            cargarDatosInventario(); // refrescar stock
+            cargarDatosInventario();
+            generarReciboHTML(data); // <<--- crear recibo visual
         } else {
             alert("Error: " + (data.error || "No se pudo facturar"));
         }
@@ -222,31 +243,69 @@ async function generarFactura(codigo) {
     }
 }
 
-// Cargar facturas
+// Generar recibo en el mismo HTML
+function generarReciboHTML(data) {
+    let html = `
+        <div style="font-family: monospace; border:1px solid #000; padding:10px; margin-top:20px; width:350px;">
+            <h2>📐 PAPELERÍA S&J</h2>
+            <p>Fecha: ${new Date().toLocaleString()}</p>
+            <hr>
+            <table border="1" cellspacing="0" cellpadding="5" width="100%">
+                <tr><th>Código</th><th>Nombre</th><th>Cant</th><th>Precio</th><th>Subtotal</th></tr>`;
+    
+    data.detalles.forEach(p => {
+        html += `<tr>
+            <td>${p.codigo}</td>
+            <td>${p.nombre}</td>
+            <td>${p.cantidad}</td>
+            <td>${p.precio_unitario}</td>
+            <td>${p.subtotal}</td>
+        </tr>`;
+    });
+
+    html += `
+            </table>
+            <h3>Total: $${data.total_factura}</h3>
+            <hr>
+            <p>¡Gracias por su compra!</p>
+        </div>
+    `;
+
+    // Insertar recibo en el contenedor de la página
+    document.getElementById("recibo").innerHTML = html;
+}
+
+// Cargar todas las facturas registradas
 async function cargarFacturas() {
     try {
-        const respuesta = await fetch('http://127.0.0.1:5000/datosFacturas');
-        const facturas = await respuesta.json();
-        const cuerpoTabla = document.getElementById("tablaFacturas");
-        cuerpoTabla.innerHTML = "";
+        const respuesta = await fetch("http://127.0.0.1:5000/datosFacturas");
+        if (respuesta.ok) {
+            const facturas = await respuesta.json();
+            const cuerpoTabla = document.getElementById("tablaFacturas");
+            cuerpoTabla.innerHTML = "";
 
-        facturas.forEach((f) => {
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${f.id}</td>
-                <td>${f.codigo}</td>
-                <td>${f.Nombre_elemento}</td>
-                <td>${f.cantidad}</td>
-                <td>${f.precio_unitario}</td>
-                <td>${f.total}</td>
-                <td>${f.fecha}</td>
-            `;
-            cuerpoTabla.appendChild(fila);
-        });
+            facturas.forEach(f => {
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${f.id}</td>
+                    <td>${f.codigo}</td>
+                    <td>${f.Nombre_elemento}</td>
+                    <td>${f.cantidad}</td>
+                    <td>${f.precio_unitario*1.2}</td>
+                    <td>${f.total}</td>
+                    <td>${f.fecha}</td>
+                `;
+                cuerpoTabla.appendChild(fila);
+            });
+        } else {
+            console.error("Error cargando facturas");
+        }
     } catch (error) {
-        console.error("Error cargando facturas:", error);
+        console.error("Error al obtener facturas:", error);
     }
 }
 
-document.addEventListener('DOMContentLoaded',cargarFacturas);
+*/
+
+//document.addEventListener('DOMContentLoaded', cargarFacturas);
 document.addEventListener('DOMContentLoaded', cargarDatosInventario);

@@ -72,6 +72,8 @@ def eliminar(codigo):
 def ver_ventas():
     return render_template('ventas.html')
 
+# FACTURACION
+
 @app.route('/facturacion')
 def factura():
     return render_template('facturacion.html')
