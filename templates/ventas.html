@@ -2,6 +2,13 @@
 <head></head>
 <body>
     <h1>💰 VENTAS</h1>
+
+    <h3>📅 Filtrar por fechas</h3>
+    <label>Desde: <input type="date" id="fecha_inicio"></label>
+    <label>Hasta: <input type="date" id="fecha_fin"></label>
+    <button onclick="cargarVentas()">🔍 Buscar</button>
+    <button onclick="limpiarFiltro()">❌ Limpiar</button>
+
     <table>
         <thead>
             <tr>
@@ -15,29 +22,13 @@
         </thead>
         <tbody id="tablaVentas"></tbody>
     </table>
+
+    <h3 id="resumenVentas">📊 Total en rango: $0.00</h3>
+
     <a href="inicio.html"><button>🏠 INICIO</button></a>
     <a href="inventario.html"><button>📦 INVENTARIO</button></a>
     <a href="facturacion.html"><button>📑 FACTURACIÓN</button></a>
 
-    <script>
-        async function cargarVentas(){
-            const res = await fetch('http://127.0.0.1:5000/datosVentas');
-            const datos = await res.json();
-            const tbody = document.getElementById("tablaVentas");
-            tbody.innerHTML = "";
-            datos.forEach(v => {
-                const fila = `<tr>
-                    <td>${v.id}</td>
-                    <td>${v.codigo}</td>
-                    <td>${v.Nombre_elemento}</td>
-                    <td>${v.cantidad_vendida}</td>
-                    <td>${v.total}</td>
-                    <td>${v.fecha}</td>
-                </tr>`;
-                tbody.innerHTML += fila;
-            });
-        }
-        document.addEventListener("DOMContentLoaded", cargarVentas);
-    </script>
+    <script src="funciones.js"></script>
 </body>
 </html>

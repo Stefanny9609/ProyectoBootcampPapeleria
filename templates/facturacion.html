@@ -5,10 +5,7 @@
         <a href="inicio.html"><button>🏠 INICIO</button></a>
         <a href="ventas.html"><button>💰 VENTAS</button></a>
         <a href="inventario.html"><button>📦 INVENTARIO</button></a>
-        
         <h1>📑 FACTURACIÓN</h1>
-        <br>
-        
         <h3>🔍 Buscar producto por nombre</h3>
         <input type="text" id="buscar_nombre" placeholder="Ingrese nombre">
         <button onclick="buscarPorNombre()">Buscar</button>
@@ -28,23 +25,35 @@
             <tbody id="base_datos_inventario"></tbody>
         </table>
         <button onclick="generarFacturaMultiple()">🧾 Generar Factura</button>
-        <div id="recibo"></div>
-
-        <h2>📋 Facturas Registradas</h2>
+        <button onclick="nuevaCompra()">🛒 Nueva Compra</button>
+        
+        <h2>Productos seleccionados: </h2>
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Código</th>
                     <th>Nombre</th>
                     <th>Cantidad</th>
                     <th>Precio Venta</th>
                     <th>Total</th>
-                    <th>Fecha</th>
                 </tr>
             </thead>
-            <tbody id="tablaFacturas"></tbody>
+            <tbody id="tabla_carrito"></tbody>
         </table>
+        <h2>📋 Facturas Registradas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Total General</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="Tabla_facturas"></tbody>
+        </table>
+        
+        <div id="recibo"></div> 
         
         <script src="funciones.js"></script>
     </body>

@@ -47,12 +47,6 @@ def buscar(codigo):
     resultadoElemento=cursor.fetchall()
     return jsonify(resultadoElemento)
 
-@app.route('/buscarElementoNombre/<nombre>', methods=['GET'])
-def buscar_nombre(nombre):
-    cursor.execute("SELECT * FROM inventario WHERE Nombre_elemento LIKE %s", ("%" + nombre + "%",))
-    resultadoElemento = cursor.fetchall()
-    return jsonify(resultadoElemento)
-
 @app.route('/actualizarElemento/<codigo>', methods=['PUT'])
 def actualizar(codigo):
     datos_nuevos=request.json
@@ -67,34 +61,37 @@ def eliminar(codigo):
     db.commit()
     return "Elemento eliminado"
 
-
-@app.route('/Ventas')
-def ver_ventas():
-    return render_template('ventas.html')
-
 # FACTURACION
-
 @app.route('/facturacion')
 def factura():
     return render_template('facturacion.html')
 
+@app.route('/buscarElementoNombre/<nombre>', methods=['GET'])
+def buscar_nombre(nombre):
+    cursor.execute("SELECT * FROM inventario WHERE Nombre_elemento LIKE %s", ("%" + nombre + "%",))
+    resultadoElemento = cursor.fetchall()
+    return jsonify(resultadoElemento)
+
 @app.route('/crearFactura', methods=['POST'])
 def crear_factura():
-    datos = request.json  # ahora será {"productos": [...]} 
+    datos = request.json
     productos = datos['productos']
 
-    if not productos or len(productos) == 0:
+    if not productos:
         return jsonify({"error": "No se enviaron productos"}), 400
 
     total_factura = 0
-    detalles = []
 
+    cursor.execute("INSERT INTO facturas (total_factura) VALUES (0)")  
+    factura_id = cursor.lastrowid  #es útil para obtener el ID único de una nueva fila que ha sido insertada en una tabla con una columna de clave primaria autoincrementada. 
+
+    # Insertar detalle
     for p in productos:
         codigo = p['codigo']
         cantidad = p['cantidad']
 
         cursor.execute("SELECT * FROM inventario WHERE codigo=%s", (codigo,))
-        producto = cursor.fetchone()
+        producto = cursor.fetchone()  #Capta la siguiente fila (caso) del conjunto de datos activo.
 
         if not producto:
             return jsonify({"error": f"Producto con código {codigo} no encontrado"}), 404
@@ -105,54 +102,78 @@ def crear_factura():
         subtotal = precio_unitario * cantidad
         total_factura += subtotal
 
-        # Guardar detalle
         cursor.execute(
-            "INSERT INTO facturacion (codigo, cantidad, precio_unitario, total) VALUES (%s,%s,%s,%s)",
-            (codigo, cantidad, precio_unitario, subtotal)
-        )
-
-        # Insertar en ventas
-        cursor.execute(
-            "INSERT INTO ventas (codigo, cantidad_vendida, total) VALUES (%s,%s,%s)",
-            (codigo, cantidad, subtotal)
+            "INSERT INTO detalle_factura (factura_id, codigo, cantidad, precio_unitario, total) VALUES (%s,%s,%s,%s,%s)",
+            (factura_id, codigo, cantidad, precio_unitario, subtotal)
         )
 
         # Actualizar inventario
-        cursor.execute(
-            "UPDATE inventario SET cantidad_exis = cantidad_exis - %s WHERE codigo=%s",
-            (cantidad, codigo)
-        )
+        cursor.execute("UPDATE inventario SET cantidad_exis = cantidad_exis - %s WHERE codigo=%s", (cantidad, codigo))
 
-        detalles.append({
-            "codigo": codigo,
-            "nombre": producto['Nombre_elemento'],
-            "cantidad": cantidad,
-            "precio_unitario": precio_unitario,
-            "subtotal": subtotal
-        })
+    # 3️⃣ Actualizar total en cabecera
+    cursor.execute("UPDATE facturas SET total_factura=%s WHERE id=%s", (total_factura, factura_id))
 
     db.commit()
 
     return jsonify({
-        "mensaje": "Factura creada con éxito",
-        "total_factura": total_factura,
-        "detalles": detalles
+        "id": factura_id,
+        "total_factura": total_factura
     })
 
-
-# ---------- API CONSULTAR ----------
-@app.route('/datosVentas', methods=['GET'])
-def datos_ventas():
-    cursor.execute("SELECT v.id, v.codigo, i.Nombre_elemento, v.cantidad_vendida, v.total, v.fecha FROM ventas v JOIN inventario i ON v.codigo=i.codigo")
-    ventas = cursor.fetchall()
-    return jsonify(ventas)
+@app.route('/detalleFactura/<int:factura_id>', methods=['GET'])
+def detalle_factura(factura_id):
+    cursor.execute("""
+        SELECT d.codigo, i.Nombre_elemento, d.cantidad, d.precio_unitario, d.total
+        FROM detalle_factura d
+        JOIN inventario i ON d.codigo=i.codigo
+        WHERE d.factura_id=%s
+    """, (factura_id,))
+    detalle = cursor.fetchall()
+    return jsonify(detalle)
 
 @app.route('/datosFacturas', methods=['GET'])
 def datos_facturas():
-    cursor.execute("SELECT f.id, f.codigo, i.Nombre_elemento, f.cantidad, f.precio_unitario, f.total, f.fecha FROM facturacion f JOIN inventario i ON f.codigo=i.codigo")
+    cursor.execute("SELECT * FROM facturas ORDER BY fecha DESC")
     facturas = cursor.fetchall()
     return jsonify(facturas)
 
- 
+#Ventas
+@app.route('/Ventas')
+def ver_ventas():
+    return render_template('ventas.html')
+
+@app.route("/datosVentas")
+def datos_ventas():
+    fecha_inicio = request.args.get("fecha_inicio")
+    fecha_fin = request.args.get("fecha_fin")
+
+    query = """
+        SELECT df.id,
+               i.codigo,
+               i.Nombre_elemento,
+               df.cantidad AS cantidad_vendida,
+               df.total AS total,
+               f.fecha AS fecha
+        FROM detalle_factura df
+        JOIN inventario i ON df.codigo = i.codigo
+        JOIN facturas f ON df.factura_id = f.id
+        WHERE 1=1
+    """
+    params = []
+
+    if fecha_inicio:
+        query += " AND DATE(f.fecha) >= %s"
+        params.append(fecha_inicio)
+    if fecha_fin:
+        query += " AND DATE(f.fecha) <= %s"
+        params.append(fecha_fin)
+
+    query += " ORDER BY f.fecha DESC"
+
+    cursor.execute(query, tuple(params))
+    ventas = cursor.fetchall()
+    return jsonify(ventas)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
