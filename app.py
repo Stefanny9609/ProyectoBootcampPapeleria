@@ -68,7 +68,7 @@ def factura():
 
 @app.route('/buscarElementoNombre/<nombre>', methods=['GET'])
 def buscar_nombre(nombre):
-    cursor.execute("SELECT * FROM inventario WHERE Nombre_elemento LIKE %s", ("%" + nombre + "%",))
+    cursor.execute("SELECT * FROM inventario WHERE Nombre_elemento LIKE %s", ("%"+nombre+"%",))
     resultadoElemento = cursor.fetchall()
     return jsonify(resultadoElemento)
 

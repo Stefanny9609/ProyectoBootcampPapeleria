@@ -7,7 +7,7 @@
         <a href="inventario.html"><button>📦 INVENTARIO</button></a>
         <h1>📑 FACTURACIÓN</h1>
         <h3>🔍 Buscar producto por nombre</h3>
-        <input type="text" id="buscar_nombre" placeholder="Ingrese nombre">
+        <input type="text" id="buscarPorNombre" placeholder="Ingrese nombre">
         <button onclick="buscarPorNombre()">Buscar</button>
         
         <h2>📋 Productos encontrados</h2>
@@ -22,24 +22,11 @@
                     <th>Cantidad a Facturar</th>
                 </tr>
             </thead>
-            <tbody id="base_datos_inventario"></tbody>
+            <tbody id="tabla_busqueda"></tbody>
         </table>
         <button onclick="generarFacturaMultiple()">🧾 Generar Factura</button>
         <button onclick="nuevaCompra()">🛒 Nueva Compra</button>
-        
-        <h2>Productos seleccionados: </h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Cantidad</th>
-                    <th>Precio Venta</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="tabla_carrito"></tbody>
-        </table>
+        <div id="tabla_carrito"></div>
         <h2>📋 Facturas Registradas</h2>
         <table>
             <thead>

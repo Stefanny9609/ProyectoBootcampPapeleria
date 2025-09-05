@@ -30,8 +30,8 @@ async function cargarDatosInventario() {
 }
 
 // Agregar elemento
-document.getElementById('FormularioElemento').addEventListener('submit', async function (event) {
-    event.preventDefault();
+async function registrarElemento() {
+    //event.preventDefault();
     const elemento = {
         elemento: {
             codigo: parseInt(document.getElementById('codigo').value),
@@ -54,7 +54,7 @@ document.getElementById('FormularioElemento').addEventListener('submit', async f
     } catch (error) {
         console.error('Error al agregar:', error);
     }
-});
+}
 
 // Eliminar elemento
 async function eliminar(codigo) {
@@ -159,7 +159,7 @@ async function buscarElementoNombre() {
 
 // Buscar por nombre para facturación
 async function buscarPorNombre() {
-    const nombre = document.getElementById("buscar_nombre").value;
+    const nombre = document.getElementById("buscarPorNombre").value;
     if (!nombre) {
         alert("Ingrese un nombre");
         return;
@@ -168,14 +168,14 @@ async function buscarPorNombre() {
         const respuesta = await fetch('http://127.0.0.1:5000/buscarElementoNombre/'+nombre);
         if (respuesta.ok) {
             const datos = await respuesta.json();
-            const cuerpoTabla = document.getElementById("base_datos_inventario");
+            const cuerpoTabla = document.getElementById("tabla_busqueda");
             cuerpoTabla.innerHTML = "";
-
+            
             if (datos.length == 0) {
                 alert("No se encontró ningún elemento con el nombre: " +nombre);
                 return;
             }
-
+            
             datos.forEach((f) => {
                 const fila = document.createElement('tr');
                 fila.innerHTML = `
@@ -200,8 +200,7 @@ async function buscarPorNombre() {
     }
 }
 
-// Agregar a la compra
-
+// Agregar
 function agregarAlCarrito(codigo, nombre, precio, stock) {
     const cantidad = parseInt(document.getElementById("cantidad_sol"+codigo).value);
     const precio_venta = precio * 1.2;
@@ -224,7 +223,7 @@ function agregarAlCarrito(codigo, nombre, precio, stock) {
             existente.cantidad += cantidad;
         }
     } else {
-        carrito.push({codigo, nombre,precio_venta: precio, cantidad});
+        carrito.push({codigo, nombre,precio_venta, cantidad});
     }
 
     //alert("Producto agregado");
@@ -234,24 +233,35 @@ function agregarAlCarrito(codigo, nombre, precio, stock) {
 
 // mostrar el carrito
 function mostrarCarrito() {
+    
     const tabla_carrito = document.getElementById("tabla_carrito");
     tabla_carrito.innerHTML = "";
-
+    const Titulo = document.createElement('h2'); // Puedes usar 'h1', 'h3', etc.
+    Titulo.textContent = "🛒 CARRITO";
+    tabla_carrito.append(Titulo);
+    const encabezado = document.createElement("tr");
+    encabezado.innerHTML = `
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Total</th>
+        <th>Acciones</th>
+    `;
+    tabla_carrito.appendChild(encabezado);
     carrito.forEach((item, cant_act) => {
         const fila = document.createElement('tr');
         fila.innerHTML = `
-            <tr>
-                <td>${item.codigo}</td>
-                <td>${item.nombre}</td>
-                <td>
-                    <button onclick="cambiarCantidad(${cant_act},-1)">➖</button>
-                    ${item.cantidad}
-                    <button onclick="cambiarCantidad(${cant_act},1)">➕</button>
-                </td>
-                <td>${item.precio_venta.toFixed(2)}</td>
-                <td>${(item.cantidad*item.precio_venta)}</td>
-                <td><button onclick="eliminarDelCarrito(${cant_act})">❌</button></td>
-            </tr>
+            <td>${item.codigo}</td>
+            <td>${item.nombre}</td>
+            <td>
+                <button onclick="cambiarCantidad(${cant_act},-1)">➖</button>
+                ${item.cantidad}
+                <button onclick="cambiarCantidad(${cant_act},1)">➕</button>
+            </td>
+            <td>${item.precio_venta.toFixed(2)}</td>
+            <td>${(item.cantidad*item.precio_venta)}</td>
+            <td><button onclick="eliminarDelCarrito(${cant_act})">❌</button></td>
         `;
         tabla_carrito.appendChild(fila);
     });
@@ -303,18 +313,10 @@ async function generarFacturaMultiple() {
         const factura = await response.json();
         console.log("Factura creada:", factura);
 
-        // agregar fila al historial
-        const tabla = document.getElementById("Tabla_facturas");
-        const fila = tabla.insertRow();
-        fila.innerHTML = `
-            <td>${factura.id || "-"}</td>
-            <td>${factura.total_factura}</td>
-            <td>${fecha}</td>
-            <td><button onclick="mostrarFacturaCompletaBackend(${factura.id || 0})">🔍 Ver Detalle</button></td>
-        `;
-
         carrito = [];
         mostrarCarrito();
+        cargarFacturasGuardadas();
+
         //alert("Factura creada exitosamente ✅");
                 
     } catch (error) {
@@ -330,7 +332,7 @@ async function cargarFacturasGuardadas() {
         tabla.innerHTML = "";
 
         facturas.forEach(f => {
-            const fila = tabla.insertRow();
+            const fila = document.createElement('tr');
             fila.innerHTML = `
                 <td>${f.id}</td>
                 <td>${f.total_factura}</td>
@@ -346,11 +348,11 @@ async function cargarFacturasGuardadas() {
 
 //mostrar una factura completa en el div "recibo"
 async function mostrarFacturaCompletaBackend(id) {
-    const response = await fetch(`http://127.0.0.1:5000/detalleFactura/${id}`);
+    const response = await fetch(`http://127.0.0.1:5000/detalleFactura/`+id);
     const detalle = await response.json();
 
     let html = `<h3>🧾 Factura N° ${id}</h3>
-                <table border="1">
+                <table>
                 <thead>
                     <tr><th>Código</th><th>Nombre</th><th>Cantidad</th><th>Precio</th><th>Total</th></tr>
                 </thead><tbody>`;
@@ -374,6 +376,7 @@ function nuevaCompra() {
     mostrarCarrito();
     document.getElementById("recibo").innerHTML = "";
     alert("Listo para una nueva compra 🛒");
+    location.reload();
 }
 
 function enviarFactura(id) {
@@ -435,4 +438,4 @@ function limpiarFiltro(){
 
 document.addEventListener("DOMContentLoaded", cargarVentas);
 document.addEventListener("DOMContentLoaded", cargarFacturasGuardadas);
-document.addEventListener('DOMContentLoaded', cargarDatosInventario);
+document.addEventListener("DOMContentLoaded", cargarDatosInventario);
