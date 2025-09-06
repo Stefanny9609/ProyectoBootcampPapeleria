@@ -163,7 +163,7 @@ tr:hover {
 }
 
 .grafico-box {
-    width: 45%;
+    width: 40%;
     min-width: 300px; /* para que no se deformen en pantallas chicas */
     margin: 10px;
 }
