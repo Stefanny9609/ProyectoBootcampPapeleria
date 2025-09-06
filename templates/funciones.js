@@ -127,7 +127,7 @@ async function buscarElementoNombre() {
             const cuerpoTabla = document.getElementById("base_datos_inventario");
             cuerpoTabla.innerHTML = "";
 
-            if (datos.length === 0) {
+            if (datos.length == 0) {
                 alert("No se encontró ningún elemento con el nombre: " + nombre);
                 return;
             }
@@ -152,6 +152,29 @@ async function buscarElementoNombre() {
         }
     } catch (error) {
         console.error("Error buscando elemento:", error);
+    }
+}
+async function cargarAlertasStock() {
+    try {
+        const respuesta = await fetch("http://127.0.0.1:5000/productosBajoStock");
+        const productos = await respuesta.json();
+        const div = document.getElementById("alertas_stock");
+        div.innerHTML = "";
+
+        if (productos.length === 0) {
+            div.innerHTML = "<p>✅ No hay productos en riesgo de agotarse.</p>";
+            return;
+        }
+
+        let html = "<ul>";
+        productos.forEach(p => {
+            html += `<li>⚠️ ${p.Nombre_elemento} — Stock: ${p.cantidad_exis}</li>`;
+        });
+        html += "</ul>";
+        div.innerHTML = html;
+
+    } catch (error) {
+        console.error("Error cargando alertas de stock:", error);
     }
 }
 
@@ -259,7 +282,7 @@ function mostrarCarrito() {
                 ${item.cantidad}
                 <button onclick="cambiarCantidad(${cant_act},1)">➕</button>
             </td>
-            <td>${item.precio_venta.toFixed(2)}</td>
+            <td>${item.precio_venta}</td>
             <td>${(item.cantidad*item.precio_venta)}</td>
             <td><button onclick="eliminarDelCarrito(${cant_act})">❌</button></td>
         `;
@@ -299,8 +322,6 @@ async function generarFacturaMultiple() {
         return;
     }
 
-    let fecha = new Date().toLocaleString("es-ES"); // fecha en español
-
     try {
         const response = await fetch("http://127.0.0.1:5000/crearFactura", {
             method: "POST",
@@ -313,37 +334,33 @@ async function generarFacturaMultiple() {
         const factura = await response.json();
         console.log("Factura creada:", factura);
 
+        await mostrarFacturaCompletaBackend(factura.id);
+
+        const acciones = `
+            <br>
+            <button onclick="enviarFactura(${factura.id})">📤 Enviar</button>
+            <button onclick="imprimirFactura(${factura.id})">🖨️ Imprimir</button>
+        `;
+        document.getElementById("recibo").innerHTML += acciones;
+
+        // Vaciar carrito
         carrito = [];
         mostrarCarrito();
         cargarFacturasGuardadas();
 
-        //alert("Factura creada exitosamente ✅");
-                
     } catch (error) {
         console.error("Error generando factura:", error);
     }
 }
-async function cargarFacturasGuardadas() {
-    try {
-        const response = await fetch("http://127.0.0.1:5000/datosFacturas");
-        const facturas = await response.json();
 
-        const tabla = document.getElementById("Tabla_facturas");
-        tabla.innerHTML = "";
+function enviarFactura(id) {
+    alert(`Factura N° ${id} enviada exitosamente 📤`);
+    console.log("📤 Factura enviada:", id);
+}
 
-        facturas.forEach(f => {
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${f.id}</td>
-                <td>${f.total_factura}</td>
-                <td>${new Date(f.fecha).toLocaleString("es-ES")}</td>
-                <td><button onclick="mostrarFacturaCompletaBackend(${f.id})">🔍 Ver Detalle</button></td>
-            `;
-            tabla.appendChild(fila);
-        });
-    } catch (error) {
-        console.error("Error cargando facturas:", error);
-    }
+function imprimirFactura(id) {
+    alert(`Factura N° ${id} enviada a impresión 🖨️`);
+    console.log("🖨️ Factura impresa:", id);
 }
 
 //mostrar una factura completa en el div "recibo"
@@ -378,64 +395,135 @@ function nuevaCompra() {
     alert("Listo para una nueva compra 🛒");
     location.reload();
 }
+// Mostrar facturas
+async function mostrarFacturas() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/datosFacturas");
+        const facturas = await response.json();
 
-function enviarFactura(id) {
-    alert(`Factura N° ${id} enviada exitosamente 📤`);
-    console.log("📤 Factura enviada:", id);
+        let html = `
+            <h2>📋 Facturas Registradas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Total General</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        facturas.forEach(f => {
+            html += `
+                <tr>
+                    <td>${f.id}</td>
+                    <td>${f.total_factura}</td>
+                    <td>${new Date(f.fecha).toLocaleString("es-ES")}</td>
+                    <td><button onclick="mostrarFacturaCompletaBackend(${f.id})">🔍</button></td>
+                </tr>
+            `;
+        });
+
+        html += "</tbody></table><div id='recibo'></div>";
+        document.getElementById("vistaVentas").innerHTML = html;
+
+    } catch (error) {
+        console.error("Error cargando facturas:", error);
+    }
 }
 
-async function cargarVentas(){
-    let inicio = document.getElementById("fecha_inicio").value;
-    let fin = document.getElementById("fecha_fin").value;
+// Mostrar TODAS las ventas
+async function mostrarVentas() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/todasLasVentas");
+        const ventas = await response.json();
 
-    let url = "http://127.0.0.1:5000/datosVentas";
-    let params = [];
+        let totalGeneral = 0;
 
-    if (inicio) params.push("fecha_inicio=" + inicio);
-    if (fin) params.push("fecha_fin=" + fin);
+        let html = `
+            <h2>🛒 Detalle de Todas las Ventas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Factura</th>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Código</th>
+                        <th>Cantidad</th>
+                        
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
 
-    if (params.length > 0){
-        url += "?" + params.join("&");
+        ventas.forEach(v => {
+            let subtotal = Number(v.total) || 0;
+            totalGeneral += subtotal;
+
+            html += `
+                <tr>
+                    <td>${v.factura_id}</td>
+                    <td>${new Date(v.fecha).toLocaleString("es-ES")}</td>
+                    <td>${v.Nombre_elemento}</td>
+                    <td>${v.codigo}</td>
+                    <td>${v.cantidad}</td>
+                    
+                    <td>${subtotal}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+
+        // Recuadro con total general
+        html += `
+            <div>
+                💵 TOTAL GENERAL DE VENTAS: ${totalGeneral}
+            </div>
+        `;
+
+        document.getElementById("vistaVentas").innerHTML = html;
+
+    } catch (error) {
+        console.error("Error cargando ventas:", error);
     }
-
-    const res = await fetch(url);
-    const datos = await res.json();
-    const tbody = document.getElementById("tablaVentas");
-    tbody.innerHTML = "";
-
-    let totalGeneral = 0;
-
-    if (datos.length === 0){
-        tbody.innerHTML = "<tr><td colspan='6'>❌ No hay ventas en este rango</td></tr>";
-        document.getElementById("resumenVentas").innerText = "📊 Total en rango: $0.00";
-        return;
-    }
-
-    datos.forEach(v => {
-        const fila = `<tr>
-            <td>${v.id}</td>
-            <td>${v.codigo}</td>
-            <td>${v.Nombre_elemento}</td>
-            <td>${v.cantidad_vendida}</td>
-            <td>$${parseFloat(v.total).toFixed(2)}</td>
-            <td>${new Date(v.fecha).toLocaleString("es-CO")}</td>
-        </tr>`;
-        tbody.innerHTML += fila;
-
-        totalGeneral += parseFloat(v.total);
+}
+async function cargarGraficos() {
+    // Ventas por día
+    const res1 = await fetch("http://127.0.0.1:5000/ventasPorDia");
+    const ventas = await res1.json();
+    const ctx1 = document.getElementById('graficoVentasDia').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ventas.map(v => v.dia),
+            datasets: [{
+                label: 'Ventas ($)',
+                data: ventas.map(v => v.total_ventas)
+            }]
+        }
     });
 
-    // Mostrar resumen
-    document.getElementById("resumenVentas").innerText =
-        "📊 Total en rango: $" + totalGeneral.toFixed(2);
+    // Productos más vendidos
+    const res2 = await fetch("http://127.0.0.1:5000/productosMasVendidos");
+    const productos = await res2.json();
+    const ctx2 = document.getElementById('graficoProductos').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: productos.map(p => p.Nombre_elemento),
+            datasets: [{
+                label: 'Cantidad vendida',
+                data: productos.map(p => p.total_vendido)
+            }]
+        }
+    });
 }
 
-function limpiarFiltro(){
-    document.getElementById("fecha_inicio").value = "";
-    document.getElementById("fecha_fin").value = "";
-    cargarVentas();
-}
-
-document.addEventListener("DOMContentLoaded", cargarVentas);
-document.addEventListener("DOMContentLoaded", cargarFacturasGuardadas);
+document.addEventListener("DOMContentLoaded", cargarGraficos);
+document.addEventListener("DOMContentLoaded", mostrarFacturas);
+document.addEventListener("DOMContentLoaded",cargarAlertasStock);
 document.addEventListener("DOMContentLoaded", cargarDatosInventario);

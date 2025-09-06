@@ -1,5 +1,7 @@
 <html>
-    <head></head>
+    <head>
+            <link rel="stylesheet" href="estilos.css">
+    </head>
     <body>
         <h1>📐📎 PAPELERIA S&J 📒📏</h1>
         <a href="inicio.html"><button>🏠 INICIO</button></a>
@@ -27,20 +29,8 @@
         <button onclick="generarFacturaMultiple()">🧾 Generar Factura</button>
         <button onclick="nuevaCompra()">🛒 Nueva Compra</button>
         <div id="tabla_carrito"></div>
-        <h2>📋 Facturas Registradas</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Total General</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="Tabla_facturas"></tbody>
-        </table>
-        
         <div id="recibo"></div> 
+             
         
         <script src="funciones.js"></script>
     </body>

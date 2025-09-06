@@ -1,0 +1,130 @@
+/* ==== FUENTES Y BASE ==== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Quicksand:wght@400;600&display=swap');
+
+/* Fondo general para todas las páginas */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #d8c7ff, #ffd6e8, #cbe7ff); /* morado, rosado, azul pastel */
+    margin: 0;
+    padding: 0;
+    color: #333;
+    min-height: 100vh;
+}
+
+/* ==== TITULOS ==== */
+h1, h2, h3 {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 600;
+    color: #5e35b1; /* Morado pastel */
+}
+
+/* ==== NAVBAR ==== */
+nav {
+   /* background: linear-gradient(to right, #b39ddb, #f8bbd0, #90caf9);*/
+    padding: 12px;
+    text-align: center;
+    border-bottom: 3px solid #ddd;
+}
+
+/* ==== BOTONES ==== */
+button, nav button {
+    background: linear-gradient(to bottom, #90caf9, #5e92f3);
+    border: none;
+    color: white;
+    padding: 12px 18px;
+    margin: 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0px 4px 0px #2c3e50;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover, nav button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 0px #2c3e50;
+    background: linear-gradient(to bottom, #5e92f3, #1565c0);
+}
+
+/* ==== FORMULARIOS ==== */
+form {
+    width: 80%;
+    margin: 20px auto;
+    background: #f8bbd0; /* Rosado pastel */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
+
+form label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+form input {
+    margin: 5px;
+    padding: 7px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* ==== TABLAS ==== */
+table {
+    width: 90%;
+    margin: 25px auto;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+    background: white;
+    font-size: 14px;
+}
+
+th {
+    background: #b39ddb; /* Morado pastel */
+    color: white;
+    padding: 12px;
+    text-transform: uppercase;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+tr:hover {
+    background: #f3e5f5; /* Morado más claro */
+}
+
+/* ==== ALERTAS DE STOCK ==== */
+#alertas_stock {
+    width: 80%;
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 12px;
+    background: #fff3cd;
+    border: 2px solid #ffe082;
+    color: #856404;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* ==== RECIBO FACTURA ==== */
+#recibo {
+    width: 70%;
+    margin: 20px auto;
+    padding: 20px;
+    border: 2px dashed #90caf9;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 14px;
+}

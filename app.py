@@ -1,6 +1,7 @@
 import mysql.connector
 from flask import Flask, render_template,jsonify,request
 from flask_cors import CORS
+from decimal import Decimal
 from datetime import datetime
 
 app = Flask(__name__)
@@ -60,6 +61,12 @@ def eliminar(codigo):
     cursor.execute("DELETE FROM inventario WHERE codigo=%s",(codigo,))
     db.commit()
     return "Elemento eliminado"
+
+@app.route('/productosBajoStock')
+def productos_bajo_stock():
+    cursor.execute("SELECT * FROM inventario WHERE cantidad_exis <= 5 ORDER BY cantidad_exis ASC")
+    productos = cursor.fetchall()
+    return jsonify(productos)
 
 # FACTURACION
 @app.route('/facturacion')
@@ -132,9 +139,18 @@ def detalle_factura(factura_id):
     return jsonify(detalle)
 
 @app.route('/datosFacturas', methods=['GET'])
-def datos_facturas():
-    cursor.execute("SELECT * FROM facturas ORDER BY fecha DESC")
+def obtener_facturas():
+    cursor.execute("SELECT * FROM facturas ORDER BY id DESC")
     facturas = cursor.fetchall()
+
+    # limpiar datos: Decimal -> float, datetime -> string
+    for row in facturas:
+        for k, v in row.items():
+            if isinstance(v, Decimal):
+                row[k] = float(v)
+            if isinstance(v, datetime):
+                row[k] = v.isoformat()
+
     return jsonify(facturas)
 
 #Ventas
@@ -142,38 +158,57 @@ def datos_facturas():
 def ver_ventas():
     return render_template('ventas.html')
 
-@app.route("/datosVentas")
-def datos_ventas():
-    fecha_inicio = request.args.get("fecha_inicio")
-    fecha_fin = request.args.get("fecha_fin")
-
-    query = """
-        SELECT df.id,
-               i.codigo,
-               i.Nombre_elemento,
-               df.cantidad AS cantidad_vendida,
-               df.total AS total,
-               f.fecha AS fecha
-        FROM detalle_factura df
-        JOIN inventario i ON df.codigo = i.codigo
-        JOIN facturas f ON df.factura_id = f.id
-        WHERE 1=1
-    """
-    params = []
-
-    if fecha_inicio:
-        query += " AND DATE(f.fecha) >= %s"
-        params.append(fecha_inicio)
-    if fecha_fin:
-        query += " AND DATE(f.fecha) <= %s"
-        params.append(fecha_fin)
-
-    query += " ORDER BY f.fecha DESC"
-
-    cursor.execute(query, tuple(params))
+@app.route('/todasLasVentas', methods=['GET'])
+def todas_las_ventas():
+    cursor.execute("""
+        SELECT f.id AS factura_id, f.fecha, f.total_factura,
+               d.codigo, i.Nombre_elemento, d.cantidad, d.precio_unitario, d.total
+        FROM detalle_factura d
+        JOIN facturas f ON d.factura_id = f.id
+        JOIN inventario i ON d.codigo = i.codigo
+        ORDER BY f.fecha DESC
+    """)
     ventas = cursor.fetchall()
+
+    # Convertir Decimal -> float, datetime -> string
+    for row in ventas:
+        for k, v in row.items():
+            if isinstance(v, Decimal):
+                row[k] = float(v)
+            if isinstance(v, datetime):
+                row[k] = v.isoformat()  # "2025-09-06T12:30:00"
+
     return jsonify(ventas)
 
+@app.route('/ventasPorDia')
+def ventas_por_dia():
+    cursor.execute("""
+        SELECT DATE(fecha) AS dia, SUM(total_factura) AS total_ventas
+        FROM facturas
+        GROUP BY DATE(fecha)
+        ORDER BY dia
+    """)
+    datos = cursor.fetchall()
+    # limpiar datos
+    for row in datos:
+        row['total_ventas'] = float(row['total_ventas'])
+        row['dia'] = row['dia'].isoformat()
+    return jsonify(datos)
+
+@app.route('/productosMasVendidos')
+def productos_mas_vendidos():
+    cursor.execute("""
+        SELECT i.Nombre_elemento, SUM(d.cantidad) AS total_vendido
+        FROM detalle_factura d
+        JOIN inventario i ON d.codigo = i.codigo
+        GROUP BY i.Nombre_elemento
+        ORDER BY total_vendido DESC
+        LIMIT 5
+    """)
+    datos = cursor.fetchall()
+    for row in datos:
+        row['total_vendido'] = int(row['total_vendido'])
+    return jsonify(datos)
 
 if __name__ == '__main__':
     app.run(debug=True)
