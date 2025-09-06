@@ -9,7 +9,32 @@ body {
     padding: 0;
     color: #333;
     min-height: 100vh;
+    padding-top: 150px; /* espacio para que no se tape */
+
 }
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(90deg, #d8c7ff, #ffd6e8, #cbe7ff);
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+header h1 {
+    font-family: 'Lobster', 'Poppins', 'cursive';
+    font-size: 3.5rem;
+    text-align: center;
+    color: #6a5acd; /* morado pastel */
+    text-shadow: 3px 3px 8px rgba(106, 90, 205, 0.4), 
+                 -2px -2px 6px rgba(255, 214, 232, 0.6);
+    margin: 0;
+}
+
 
 /* ==== TITULOS ==== */
 h1, h2, h3 {
@@ -21,7 +46,7 @@ h1, h2, h3 {
 
 /* ==== NAVBAR ==== */
 nav {
-   /* background: linear-gradient(to right, #b39ddb, #f8bbd0, #90caf9);*/
+    /*background: linear-gradient(to right, #b39ddb, #f8bbd0, #90caf9);*/
     padding: 12px;
     text-align: center;
     border-bottom: 3px solid #ddd;
@@ -127,4 +152,51 @@ tr:hover {
     box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
     font-family: 'Quicksand', sans-serif;
     font-size: 14px;
+}
+
+.graficos-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    margin-top: 40px;
+    flex-wrap: wrap; /* importante si en pantallas pequeñas quieres que bajen */
+}
+
+.grafico-box {
+    width: 45%;
+    min-width: 300px; /* para que no se deformen en pantallas chicas */
+    margin: 10px;
+}
+.buscar-container {
+    display: flex;
+    justify-content: center;  /* centra horizontal */
+    align-items: center;      /* alinea vertical */
+    margin: 20px auto;
+    gap: 10px;                /* espacio entre input y botón */
+}
+
+.buscar-container input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 2px solid #6a5acd;
+    border-radius: 8px;
+    width: 250px;
+}
+
+.buscar-container button {
+    background: #6a5acd;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    box-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.buscar-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
 }

@@ -3,16 +3,14 @@
             <link rel="stylesheet" href="estilos.css">
     </head>
     <body>
-        <h1>📐📎 PAPELERIA S&J 📒📏</h1>
-        <a href="inicio.html">
-             <button>🏠 PAGINA DE INICIO</button>
-        </a>
-        <a href="ventas.html">
-            <button>💰 VENTAS</button>
-        </a>
-        <a href="facturacion.html">
-            <button>📑 FACTURACION</button>
-        </a>
+        <header>
+            <h1>📐📎 PAPELERIA S&J 📒📏</h1>
+            <a href="inicio.html"><button>🏠 PAGINA DE INICIO</button></a>
+            <a href="ventas.html"><button>💰 VENTAS</button></a>
+            <a href="facturacion.html"><button>📑 FACTURACION</button></a>
+        </header>
+        
+        
         <h1>📦 INVENTARIO</h1>
         <h2>⚠️ Productos con Stock Bajo</h2>
         <div id="alertas_stock"></div>
@@ -30,9 +28,13 @@
             <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
         </form>     
         <h3>🔍 Buscar elemento por nombre</h3>
-        <input type="text" id="buscar_nombre" placeholder="Ingrese nombre">
-        <button onclick="buscarElementoNombre()">Buscar</button>
-        <button onclick="cargarDatosInventario()">🔄 Ver todos</button>
+
+        <div class="buscar-container">
+            <input type="text" id="buscar_nombre" placeholder="Ingrese nombre">
+            <button onclick="buscarElementoNombre()">Buscar</button>
+            <button onclick="cargarDatosInventario()">🔄 Ver todos</button>
+        </div>
+        
 
         
         <table>

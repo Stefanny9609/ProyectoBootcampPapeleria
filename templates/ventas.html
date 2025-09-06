@@ -4,21 +4,27 @@
         <link rel="stylesheet" href="estilos.css">
     </head>
     <body>
-        <h1>📐📎 PAPELERIA S&J 📒📏</h1>
-        <a href="inicio.html"><button>🏠 INICIO</button></a>
-        <a href="facturacion.html"><button>📑 FACTURACION</button></a>
-        <a href="inventario.html"><button>📦 INVENTARIO</button></a>
-
+        <header>
+            <h1>📐📎 PAPELERIA S&J 📒📏</h1>
+            <a href="inicio.html"><button>🏠 INICIO</button></a>
+            <a href="facturacion.html"><button>📑 FACTURACION</button></a>
+            <a href="inventario.html"><button>📦 INVENTARIO</button></a>
+        </header>
+        
+        
         <h1>💰 VENTAS</h1>
         <h2>📊 Análisis de Ventas</h2>
-        <div style="width:80%; margin:auto;">
-            <h3>Ventas por Día</h3>
-            <canvas id="graficoVentasDia"></canvas>
+        <div class="graficos-container">
+            <div class="grafico-box">
+                <h3>Ventas por Día</h3>
+                <canvas id="graficoVentasDia"></canvas>
+            </div>
+            <div class="grafico-box">
+                <h3>Top 5 Productos Más Vendidos</h3>
+                <canvas id="graficoProductos"></canvas>
+            </div>
         </div>
-        <div style="width:80%; margin:auto; margin-top:40px;">
-            <h3>Top 5 Productos Más Vendidos</h3>
-            <canvas id="graficoProductos"></canvas>
-        </div>
+
         <button onclick="mostrarFacturas()">📋 Ver Facturas</button>
         <button onclick="mostrarVentas()">🛒 Ver Todas las Ventas</button>
 

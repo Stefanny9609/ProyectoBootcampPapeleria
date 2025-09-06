@@ -502,7 +502,16 @@ async function cargarGraficos() {
             labels: ventas.map(v => v.dia),
             datasets: [{
                 label: 'Ventas ($)',
-                data: ventas.map(v => v.total_ventas)
+                data: ventas.map(v => v.total_ventas),
+                backgroundColor: [
+                    "#beaee2ff", // morado pastel
+                    "#e7c2d2ff", // rosado pastel
+                    "#a9c4dbff", // azul pastel
+                    "#d3bae7ff", // lila
+                    "#8fc6f7ff"  // azul claro
+                ],
+                borderColor: "#6a5acd", // morado oscuro
+                borderWidth: 2
             }]
         }
     });
@@ -517,7 +526,16 @@ async function cargarGraficos() {
             labels: productos.map(p => p.Nombre_elemento),
             datasets: [{
                 label: 'Cantidad vendida',
-                data: productos.map(p => p.total_vendido)
+                data: productos.map(p => p.total_vendido),
+                backgroundColor: [
+                    "#beaee2ff", // morado pastel
+                    "#e7c2d2ff", // rosado pastel
+                    "#a9c4dbff", // azul pastel
+                    "#d3bae7ff", // lila
+                    "#8fc6f7ff"  // azul claro
+                ],
+                borderColor: "#6a5acd", // morado oscuro
+                borderWidth: 2
             }]
         }
     });

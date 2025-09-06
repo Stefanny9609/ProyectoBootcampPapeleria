@@ -3,14 +3,20 @@
             <link rel="stylesheet" href="estilos.css">
     </head>
     <body>
-        <h1>📐📎 PAPELERIA S&J 📒📏</h1>
-        <a href="inicio.html"><button>🏠 INICIO</button></a>
-        <a href="ventas.html"><button>💰 VENTAS</button></a>
-        <a href="inventario.html"><button>📦 INVENTARIO</button></a>
+        <header>
+            <h1>📐📎 PAPELERIA S&J 📒📏</h1>
+            <a href="inicio.html"><button>🏠 INICIO</button></a>
+            <a href="ventas.html"><button>💰 VENTAS</button></a>
+            <a href="inventario.html"><button>📦 INVENTARIO</button></a>
+        </header>
+        
+        
         <h1>📑 FACTURACIÓN</h1>
         <h3>🔍 Buscar producto por nombre</h3>
-        <input type="text" id="buscarPorNombre" placeholder="Ingrese nombre">
-        <button onclick="buscarPorNombre()">Buscar</button>
+        <div class="buscar-container">
+            <input type="text" id="buscarPorNombre" placeholder="Ingrese nombre">
+            <button onclick="buscarPorNombre()">Buscar</button>
+        </div>
         
         <h2>📋 Productos encontrados</h2>
         <table>
